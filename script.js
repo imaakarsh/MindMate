@@ -1,5 +1,4 @@
 
-
 'use strict';
 
 // ── 1. QUOTES OF THE DAY 
@@ -20,41 +19,48 @@ const QUOTES = [
     '"Don\'t wish for it; work for it."',
 ];
 
-// ── 2. MOOD MESSAGES ────
+// ── 2. MOOD MESSAGES ─────
 const MOOD_CONFIG = {
     happy: {
         icon: '🌟',
-        msg: 'Great energy! Keep the momentum going.',
+        msg: 'Great energy! Keep the momentum going — full study mode activated.',
         cls: 'happy',
     },
     normal: {
         icon: '💙',
-        msg: 'Stay consistent. Small progress daily leads to success.',
+        msg: 'Stay consistent. Small progress daily leads to big success.',
         cls: 'normal',
     },
     stressed: {
         icon: '🌿',
-        msg: 'Take a deep breath. Try a 2-minute break and focus on one small task.',
+        msg: 'Take a deep breath. Light load mode — one small task at a time.',
         cls: 'stressed',
     },
 };
 
-// ── 3. STATE
-let studyPlan = [];   // Array of day objects
+// ── 3. STATE ─────────────
+let studyPlan = [];
 let currentMood = 'normal';
-let progress = {};   // { 'd0_t0': true, … }
+let progress = {};
 
-// Timer state
-const FOCUS_DURATION = 25 * 60; // 25 minutes in seconds
-const BREAK_DURATION = 5 * 60;  // 5 minutes in seconds
-const RING_CIRCUMFERENCE = 2 * Math.PI * 60; // r = 60  →  376.99
+// Timer
+const FOCUS_DURATION = 25 * 60;
+const BREAK_DURATION = 5 * 60;
+const RING_CIRCUMFERENCE = 2 * Math.PI * 60;
 
 let currentTimerMode = 'focus';
 let timerSeconds = FOCUS_DURATION;
 let timerRunning = false;
 let timerInterval = null;
 
-// ── 4. DOM REFERENCES ───
+// Sessions
+let sessionsToday = 0;
+
+// Milestone tracking
+const MILESTONES = [25, 50, 75, 100];
+let triggeredMilestones = new Set();
+
+// ── 4. DOM REFERENCES ────
 const sections = {
     landing: document.getElementById('landing'),
     planner: document.getElementById('planner'),
@@ -68,118 +74,76 @@ const navLinks = {
     timer: document.getElementById('navTimer'),
 };
 
-// ── 5. SECTION NAVIGATION
-
-/**
- * Show one section and hide the rest.
- * Also highlights the correct nav link.
- */
+// ── 5. NAVIGATION ─────────
 function showSection(name) {
-    // Hide all
     Object.values(sections).forEach(s => s.classList.add('hidden'));
-    // Remove active from all nav links
     Object.values(navLinks).forEach(l => l.classList.remove('active'));
-
-    // Show the target
     if (sections[name]) sections[name].classList.remove('hidden');
     if (navLinks[name]) navLinks[name].classList.add('active');
-
-    // Close mobile nav if open
     document.getElementById('navLinks').classList.remove('open');
-
-    // Scroll top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Hamburger (mobile nav)
 function toggleNav() {
     document.getElementById('navLinks').classList.toggle('open');
 }
 
-// ── 6. INIT─
-
-/** Runs on page load */
+// ── 6. INIT ──────────────
 function init() {
     showSection('landing');
     showDailyQuote();
     loadFromStorage();
     updateTimerDisplay();
+    initParticles();
+    updateSessionDisplay();
 }
 
-// ── 7. DAILY QUOTE ──────
-
+// ── 7. DAILY QUOTE ───────
 function showDailyQuote() {
-    // Pick a quote based on day of month so it changes each day
     const day = new Date().getDate();
     const quote = QUOTES[day % QUOTES.length];
     document.getElementById('dailyQuote').textContent = quote;
 }
 
-// ── 8. FORM VALIDATION & PLAN GENERATION────────
-
+// ── 8. FORM / PLAN GENERATION ────────────────────────────────────────────────
 document.getElementById('plannerForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
-    // Read inputs
     const subjectsRaw = document.getElementById('subjectsInput').value.trim();
     const examDateVal = document.getElementById('examDateInput').value;
     const hoursVal = parseInt(document.getElementById('hoursInput').value, 10);
 
-    // Clear previous errors
     clearErrors();
 
-    // Validate subjects
     const subjects = subjectsRaw.split(',').map(s => s.trim()).filter(Boolean);
-    if (subjects.length === 0) {
-        showError('subjectsErr', 'Please enter at least one subject.');
-        return;
-    }
+    if (subjects.length === 0) { showError('subjectsErr', 'Please enter at least one subject.'); return; }
 
-    // Validate exam date (must be future)
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const examDate = new Date(examDateVal);
-    if (!examDateVal || isNaN(examDate.getTime())) {
-        showError('dateErr', 'Please pick a valid date.');
-        return;
-    }
-    if (examDate <= today) {
-        showError('dateErr', 'Exam date must be in the future.');
-        return;
-    }
+    if (!examDateVal || isNaN(examDate.getTime())) { showError('dateErr', 'Please pick a valid date.'); return; }
+    if (examDate <= today) { showError('dateErr', 'Exam date must be in the future.'); return; }
+    if (!hoursVal || hoursVal < 1 || hoursVal > 14) { showError('hoursErr', 'Please enter 1–14 hours.'); return; }
 
-    // Validate hours
-    if (!hoursVal || hoursVal < 1 || hoursVal > 14) {
-        showError('hoursErr', 'Please enter 1–14 hours.');
-        return;
-    }
-
-    // Calculate days remaining
     const msPerDay = 24 * 60 * 60 * 1000;
     const daysLeft = Math.ceil((examDate - today) / msPerDay);
 
-    // Generate plan
     studyPlan = generatePlan(subjects, daysLeft, hoursVal, today);
     currentMood = 'normal';
     progress = {};
+    triggeredMilestones = new Set();
 
-    // Save to LocalStorage
     saveToStorage();
 
-    // Update stats
     document.getElementById('statDays').textContent = daysLeft;
     document.getElementById('statSubjects').textContent = subjects.length;
     document.getElementById('statHours').textContent = hoursVal + 'h';
 
-    // Render timetable
     renderTimetable();
     updateProgressBar();
     clearMoodState();
-
-    // Go to dashboard
     showSection('dashboard');
     showToast('Study plan created! 🎉');
 });
-
 
 function generatePlan(subjects, daysLeft, hoursPerDay, startDate) {
     const plan = [];
@@ -192,21 +156,17 @@ function generatePlan(subjects, daysLeft, hoursPerDay, startDate) {
             weekday: 'short', month: 'short', day: 'numeric',
         });
 
-
         const isRest = (daysLeft > 7 && (i + 1) % 7 === 0);
-
         if (isRest) {
             plan.push({ day: i + 1, date: dateStr, tasks: [], isRest: true });
             continue;
         }
 
-        // Fill day with subject sessions 
         const tasks = [];
         let hoursFilled = 0;
-
         while (hoursFilled < hoursPerDay) {
             const sub = subjects[subjectIndex % subjects.length];
-            const slot = Math.min(2, hoursPerDay - hoursFilled); // cap at 2h
+            const slot = Math.min(2, hoursPerDay - hoursFilled);
             tasks.push({ subject: sub, hours: slot, done: false });
             hoursFilled += slot;
             subjectIndex++;
@@ -218,38 +178,25 @@ function generatePlan(subjects, daysLeft, hoursPerDay, startDate) {
     return plan;
 }
 
-// ── 10. TIMETABLE RENDERING
-
-/** Builds the day cards in the dashboard */
+// ── 9. TIMETABLE RENDERING ───────────────────────────────────────────────────
 function renderTimetable() {
     const grid = document.getElementById('timetableGrid');
-    grid.innerHTML = ''; // clear old cards
+    grid.innerHTML = '';
 
     studyPlan.forEach((dayData, dayIdx) => {
-
-        // Determine tasks to show based on mood
         let tasks = [...dayData.tasks];
-
-        // Stressed → show only 70% of tasks (rounded up)
         if (currentMood === 'stressed' && !dayData.isRest) {
-            const reducedCount = Math.ceil(tasks.length * 0.7);
-            tasks = tasks.slice(0, reducedCount);
+            tasks = tasks.slice(0, Math.ceil(tasks.length * 0.7));
         }
 
-        // Create day card
         const card = document.createElement('div');
         card.className = 'day-card';
 
-        // Header
         const header = document.createElement('div');
         header.className = 'day-header';
-        header.innerHTML = `
-      <span>${dayData.date}</span>
-      <span class="day-header-num">Day ${dayData.day}</span>
-    `;
+        header.innerHTML = `<span>${dayData.date}</span><span class="day-header-num">Day ${dayData.day}</span>`;
         card.appendChild(header);
 
-        // REST DAY
         if (dayData.isRest) {
             const rest = document.createElement('p');
             rest.className = 'rest-label';
@@ -259,7 +206,6 @@ function renderTimetable() {
             return;
         }
 
-        // STRESSED note on first card
         if (currentMood === 'stressed' && dayIdx === 0) {
             const note = document.createElement('p');
             note.className = 'stressed-note';
@@ -267,15 +213,13 @@ function renderTimetable() {
             card.appendChild(note);
         }
 
-        // Task rows
         tasks.forEach((task, taskIdx) => {
-            const key = `d${dayIdx}_t${taskIdx}`; // unique key for LocalStorage
+            const key = `d${dayIdx}_t${taskIdx}`;
             const isDone = progress[key] || false;
 
             const row = document.createElement('div');
             row.className = 'task-row';
 
-            // Checkbox
             const cb = document.createElement('input');
             cb.type = 'checkbox';
             cb.id = `cb_${key}`;
@@ -286,7 +230,6 @@ function renderTimetable() {
                 updateProgressBar();
             });
 
-            // Label
             const lbl = document.createElement('label');
             lbl.htmlFor = `cb_${key}`;
             lbl.textContent = `${task.subject} (${task.hours}h)`;
@@ -300,22 +243,18 @@ function renderTimetable() {
     });
 }
 
-// ── 11. PROGRESS BAR ────
-
-/** Counts total tasks shown (respects stressed mode) */
+// ── 10. PROGRESS BAR ─────
 function countTotalTasks() {
     let total = 0;
     studyPlan.forEach(d => {
         if (d.isRest) return;
-        const count = currentMood === 'stressed'
+        total += currentMood === 'stressed'
             ? Math.ceil(d.tasks.length * 0.7)
             : d.tasks.length;
-        total += count;
     });
     return total;
 }
 
-/** Recalculates and animates the progress bar */
 function updateProgressBar() {
     const total = countTotalTasks();
     const done = Object.values(progress).filter(Boolean).length;
@@ -323,23 +262,38 @@ function updateProgressBar() {
 
     document.getElementById('progressPct').textContent = pct + '%';
     document.getElementById('progressFill').style.width = pct + '%';
+
+    const sub = document.getElementById('progressSub');
+    if (sub) {
+        if (pct === 0) sub.textContent = 'Start checking off tasks!';
+        else if (pct < 50) sub.textContent = `${done} of ${total} tasks completed. Keep going! 💪`;
+        else if (pct < 100) sub.textContent = `You're more than halfway there! 🚀`;
+        else sub.textContent = `All tasks complete! You crushed it! 🎉`;
+    }
+
+    // Check milestones
+    checkMilestone(pct);
 }
 
-// ── 12. MOOD TRACKER ────
+function checkMilestone(pct) {
+    for (const milestone of MILESTONES) {
+        if (pct >= milestone && !triggeredMilestones.has(milestone)) {
+            triggeredMilestones.add(milestone);
+            triggerConfetti();
+            showToast(`${milestone}% complete! 🎊 Keep it up!`);
+            break;
+        }
+    }
+}
 
-/**
- * Called when the user clicks a mood button.
- * Updates styles, shows message, and re-renders timetable.
- */
+// ── 11. MOOD TRACKER ─────
 function setMood(mood) {
     currentMood = mood;
     saveToStorage();
 
-    // Update button styles
     document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById(`mood${capitalize(mood)}`).classList.add('active');
 
-    // Show message
     const config = MOOD_CONFIG[mood];
     const msgBox = document.getElementById('moodMessage');
     const msgText = document.getElementById('moodMsgText');
@@ -347,30 +301,27 @@ function setMood(mood) {
 
     msgIcon.textContent = config.icon;
     msgText.textContent = config.msg;
-    msgBox.className = `mood-message ${config.cls}`; // coloured border
+    msgBox.className = `mood-message ${config.cls}`;
     msgBox.classList.remove('hidden');
 
-    // Re-render timetable with adjusted workload
     renderTimetable();
-    // Reset progress when mood changes (new task count)
     progress = {};
     saveToStorage();
     updateProgressBar();
 }
 
-/** Clears mood selection (e.g. after new plan is generated) */
 function clearMoodState() {
     document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('moodMessage').classList.add('hidden');
 }
 
-// ── 13. FOCUS TIMER ─────
-
+// ── 12. FOCUS TIMER ──────
 function setTimerMode(mode) {
     if (timerRunning) {
         clearInterval(timerInterval);
         timerRunning = false;
         document.getElementById('timerStartBtn').textContent = '▶ Start';
+        document.querySelector('.timer-ring-svg').classList.remove('ring-running');
     }
 
     currentTimerMode = mode;
@@ -399,45 +350,41 @@ function setTimerMode(mode) {
     updateTimerRing();
 }
 
-/** Formats seconds → MM:SS string */
 function formatTime(secs) {
     const m = String(Math.floor(secs / 60)).padStart(2, '0');
     const s = String(secs % 60).padStart(2, '0');
     return `${m}:${s}`;
 }
 
-/** Updates the timer display text */
 function updateTimerDisplay() {
     document.getElementById('timerTime').textContent = formatTime(timerSeconds);
 }
 
-/** Updates the SVG ring stroke-dashoffset to match elapsed time */
 function updateTimerRing() {
     const totalDuration = currentTimerMode === 'focus' ? FOCUS_DURATION : BREAK_DURATION;
-    const fraction = timerSeconds / totalDuration; // 1 = full, 0 = empty
+    const fraction = timerSeconds / totalDuration;
     const offset = RING_CIRCUMFERENCE * (1 - fraction);
     document.getElementById('timerRingProgress').style.strokeDashoffset = offset;
 }
 
-/** Toggles Start ↔ Pause */
 function timerToggle() {
     const btn = document.getElementById('timerStartBtn');
+    const svg = document.querySelector('.timer-ring-svg');
 
     if (timerRunning) {
-        // PAUSE
         clearInterval(timerInterval);
         timerRunning = false;
         btn.textContent = '▶ Resume';
+        svg.classList.remove('ring-running');
     } else {
-        // START / RESUME
         document.getElementById('timerDone').classList.add('hidden');
 
-        // If already finished, restart from 25:00
         const totalDuration = currentTimerMode === 'focus' ? FOCUS_DURATION : BREAK_DURATION;
         if (timerSeconds <= 0) timerSeconds = totalDuration;
 
         timerRunning = true;
         btn.textContent = '⏸ Pause';
+        svg.classList.add('ring-running');
 
         timerInterval = setInterval(() => {
             timerSeconds--;
@@ -448,19 +395,29 @@ function timerToggle() {
                 clearInterval(timerInterval);
                 timerRunning = false;
                 btn.textContent = '▶ Start';
+                svg.classList.remove('ring-running');
                 document.getElementById('timerDone').classList.remove('hidden');
-                playBeep(); // audio feedback
+                playBeep();
+
+                // Count focus sessions only
+                if (currentTimerMode === 'focus') {
+                    sessionsToday++;
+                    saveToStorage();
+                    updateSessionDisplay();
+                    showToast(`Session ${sessionsToday} complete! 🔥`);
+                    triggerConfetti();
+                }
             }
         }, 1000);
     }
 }
 
-/** Resets timer to default value */
 function timerReset() {
     clearInterval(timerInterval);
     timerRunning = false;
     timerSeconds = currentTimerMode === 'focus' ? FOCUS_DURATION : BREAK_DURATION;
 
+    document.querySelector('.timer-ring-svg').classList.remove('ring-running');
     updateTimerDisplay();
     updateTimerRing();
 
@@ -468,52 +425,143 @@ function timerReset() {
     document.getElementById('timerDone').classList.add('hidden');
 }
 
-/** Plays a short beep using Web Audio API */
+function updateSessionDisplay() {
+    const el = document.getElementById('sessionCount');
+    if (el) el.textContent = sessionsToday;
+}
+
 function playBeep() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.type = 'sine';
         osc.frequency.value = 880;
         gain.gain.setValueAtTime(0.4, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
         osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.9);
-    } catch (_) {
-        // Browser may not support Web Audio; silently skip
+        osc.stop(ctx.currentTime + 1.0);
+    } catch (_) { /* silent fallback */ }
+}
+
+// ── 13. CONFETTI ─────────
+const CONFETTI_COLORS = [
+    '#a78bfa', '#7c3aed', '#818cf8', '#34d399',
+    '#fbbf24', '#f472b6', '#60a5fa', '#c4b5fd',
+];
+
+function triggerConfetti() {
+    const container = document.getElementById('confettiContainer');
+    if (!container) return;
+
+    for (let i = 0; i < 60; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+
+        const left = Math.random() * 100;
+        const delay = Math.random() * 0.8;
+        const duration = 1.8 + Math.random() * 1.2;
+        const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+        const rotation = Math.random() > 0.5 ? 'rect' : 'circle';
+
+        piece.style.cssText = `
+            left: ${left}%;
+            background: ${color};
+            animation-duration: ${duration}s;
+            animation-delay: ${delay}s;
+            border-radius: ${rotation === 'circle' ? '50%' : '2px'};
+            width: ${6 + Math.random() * 8}px;
+            height: ${8 + Math.random() * 10}px;
+        `;
+
+        container.appendChild(piece);
+        setTimeout(() => piece.remove(), (duration + delay + 0.1) * 1000);
     }
 }
 
-// ── 14. LOCAL STORAGE ───
+// ── 14. PARTICLE CANVAS ──
+function initParticles() {
+    const canvas = document.getElementById('particleCanvas');
+    if (!canvas) return;
 
-/** Saves plan, mood, and progress to LocalStorage */
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+
+    const COLORS = ['rgba(167,139,250,', 'rgba(129,140,248,', 'rgba(196,181,253,'];
+
+    const particles = Array.from({ length: 70 }, () => createParticle(W, H, COLORS));
+
+    function createParticle(W, H, COLORS) {
+        return {
+            x: Math.random() * W,
+            y: Math.random() * H,
+            r: 1 + Math.random() * 2,
+            dx: (Math.random() - 0.5) * 0.4,
+            dy: (Math.random() - 0.5) * 0.4,
+            alpha: 0.1 + Math.random() * 0.5,
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        };
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = p.color + p.alpha + ')';
+            ctx.fill();
+
+            p.x += p.dx;
+            p.y += p.dy;
+
+            if (p.x < 0 || p.x > W) p.dx *= -1;
+            if (p.y < 0 || p.y > H) p.dy *= -1;
+        });
+        requestAnimationFrame(draw);
+    }
+
+    draw();
+
+    window.addEventListener('resize', () => {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+    });
+}
+
+// ── 15. LOCAL STORAGE ────
 function saveToStorage() {
     localStorage.setItem('mm_plan', JSON.stringify(studyPlan));
     localStorage.setItem('mm_mood', currentMood);
     localStorage.setItem('mm_progress', JSON.stringify(progress));
+    localStorage.setItem('mm_milestones', JSON.stringify([...triggeredMilestones]));
+
+    // Sessions reset daily
+    const todayKey = new Date().toDateString();
+    localStorage.setItem('mm_sessions_date', todayKey);
+    localStorage.setItem('mm_sessions_count', sessionsToday);
 }
 
-/** Loads saved data on startup */
 function loadFromStorage() {
     const savedPlan = localStorage.getItem('mm_plan');
     const savedMood = localStorage.getItem('mm_mood');
     const savedProg = localStorage.getItem('mm_progress');
+    const savedMS = localStorage.getItem('mm_milestones');
+
+    // Session counter (daily reset)
+    const todayKey = new Date().toDateString();
+    const savedDate = localStorage.getItem('mm_sessions_date');
+    const savedSessions = parseInt(localStorage.getItem('mm_sessions_count') || '0', 10);
+    sessionsToday = (savedDate === todayKey) ? savedSessions : 0;
 
     if (savedPlan) {
         studyPlan = JSON.parse(savedPlan);
         currentMood = savedMood || 'normal';
         progress = savedProg ? JSON.parse(savedProg) : {};
+        triggeredMilestones = savedMS ? new Set(JSON.parse(savedMS)) : new Set();
 
-        // Restore stats
-        const days = studyPlan.filter(d => !d.isRest).length;
-        const firstDay = studyPlan[0];
-        const lastDay = studyPlan[studyPlan.length - 1];
-
-        // Rough subject count from first non-rest day
         const firstNonRest = studyPlan.find(d => !d.isRest);
         const subjects = firstNonRest
             ? [...new Set(firstNonRest.tasks.map(t => t.subject))].length
@@ -531,27 +579,22 @@ function loadFromStorage() {
     }
 }
 
-
-/** Shows an inline error message */
+// ── 16. UTILITIES ────────
 function showError(id, msg) {
     document.getElementById(id).textContent = msg;
 }
 
-/** Clears all inline error messages */
 function clearErrors() {
     ['subjectsErr', 'dateErr', 'hoursErr'].forEach(id => {
         document.getElementById(id).textContent = '';
     });
 }
 
-/** Capitalises the first letter of a string */
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-/** Shows a brief toast notification */
 function showToast(msg) {
-    // Create if doesn't exist
     let toast = document.getElementById('mm-toast');
     if (!toast) {
         toast = document.createElement('div');
@@ -559,13 +602,10 @@ function showToast(msg) {
         toast.className = 'toast';
         document.body.appendChild(toast);
     }
-
     toast.textContent = msg;
     toast.classList.add('show');
-
-    // Hide after 3 seconds
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-
+// ── INIT ─────────────────
 init();
