@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="MindMate – AI Study & Mental Wellness Assistant for students." />
+    <title>MindMate – Study & Wellness</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-brand" style="cursor: pointer;"
+            onclick="showSection('landing'); window.location.href='#landing';">
+            <img src="favicon.png" alt="MindMate Logo" class="nav-logo-img">
+            <div class="nav-logo">MindMate</div>
+        </div>
+        <div class="nav-links" id="navLinks">
+            <a href="#landing" class="nav-link active" id="navHome" onclick="showSection('landing')">Home</a>
+            <a href="#dashboard" class="nav-link" id="navDashboard" onclick="showSection('dashboard')">Dashboard</a>
+            <a href="#planner" class="nav-link" id="navPlanner" onclick="showSection('planner')">Planner</a>
+
+            <a href="#timer" class="nav-link" id="navTimer" onclick="showSection('timer')">Timer</a>
+        </div>
+        <button class="hamburger" id="hamburger" onclick="toggleNav()">☰</button>
+    </nav>
+
+    <!-- LANDING -->
+    <section class="section" id="landing">
+        <div class="hero-container">
+            <div class="hero-badge"> For Students, By Students</div>
+            <h1 class="hero-title">Study <span>Smarter</span>,<br />Stay Stress-Free.</h1>
+            <p class="hero-sub">
+                MindMate helps you build a personalised study plan, track your mood,
+                and keep your wellbeing on track — all in one place.
+            </p>
+            <button class="btn btn-primary" onclick="showSection('planner')">Get Started →</button>
+
+            <!-- Feature Pills -->
+            <div class="feature-pills">
+                <span class="pill">📅 Smart Planner</span>
+                <span class="pill">😊 Mood Tracker</span>
+                <span class="pill">✅ Progress Bar</span>
+                <span class="pill">⏱️ Focus Timer</span>
+            </div>
+
+            <!-- Quote -->
+            <blockquote class="daily-quote" id="dailyQuote"></blockquote>
+        </div>
+
+        <!-- builder -->
+        <div class="team-section">
+            <div class="team-heading">
+                <h2 class="team-title">Meet the Builders</h2>
+                <p class="team-sub">The talented developers dedicating their time to making MindMate awesome.</p>
+            </div>
+            <div class="team-grid">
+
+                <!-- Card 1 -->
+                <div class="team-card">
+                    <div class="team-avatar-wrap">
+                        <img src="https://github.com/imaakarsh.png" alt="imaakarsh" class="team-avatar"
+                            onerror="this.src='https://ui-avatars.com/api/?name=imaakarsh&background=8b3ce6&color=fff&size=96'" />
+                        <span class="team-avatar-badge">
+                            <img src="git.png" alt="github">
+                        </span>
+                    </div>
+                    <div class="team-info">
+                        <p class="team-name">imaakarsh</p>
+                        <p class="team-role">Contributor</p>
+                        <p class="team-bio">Full-stack enthusiast focused on creating intuitive user experiences and
+                            optimization.</p>
+                        <a class="btn team-profile-btn" href="https://github.com/imaakarsh" target="_blank"
+                            rel="noopener">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577v-2.165c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.3-5.467-1.332-5.467-5.93 0-1.31.468-2.381 1.236-3.221-.124-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.3 1.23A11.5 11.5 0 0 1 12 6.803c1.02.005 2.047.138 3.006.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.61-2.807 5.625-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .322.218.694.825.576C20.565 21.796 24 17.298 24 12c0-6.63-5.37-12-12-12z" />
+                            </svg>
+                            View Profile
+                        </a>
+                    </div>
+                </div>
+
+                <div class="team-card">
+                    <div class="team-avatar-wrap">
+                        <img src="https://github.com/iamsiddharthhh.png" alt="iamsiddharthhh" class="team-avatar"
+                            onerror="this.src='https://ui-avatars.com/api/?name=iamsiddharthhh&background=8b3ce6&color=fff&size=96'" />
+                        <span class="team-avatar-badge">
+                            <img src="git.png" alt="github">
+                        </span>
+                    </div>
+                    <div class="team-info">
+                        <p class="team-name">iamsiddharthhh</p>
+                        <p class="team-role">Contributor</p>
+                        <p class="team-bio">Full-stack enthusiast focused on creating intuitive user experiences and
+                            optimization.</p>
+                        <a class="btn team-profile-btn" href="https://github.com/iamsiddharthhh" target="_blank"
+                            rel="noopener">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577v-2.165c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.3-5.467-1.332-5.467-5.93 0-1.31.468-2.381 1.236-3.221-.124-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.3 1.23A11.5 11.5 0 0 1 12 6.803c1.02.005 2.047.138 3.006.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.61-2.807 5.625-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .322.218.694.825.576C20.565 21.796 24 17.298 24 12c0-6.63-5.37-12-12-12z" />
+                            </svg>
+                            View Profile
+                        </a>
+                    </div>
+                </div>
+
+
+
+
+            </div>
+
+        </div>
+        </div>
+
+    </section>
+
+    <!--STUDY PLANNER FORM-->
+    <section class="section hidden" id="planner">
+        <div class="card form-card">
+            <div class="card-header">
+                <h2>Build Your Study Plan</h2>
+                <p>Fill in a few details and we'll create your personalised timetable.</p>
+            </div>
+
+            <form id="plannerForm" class="form" novalidate>
+
+                <!-- Subjects -->
+                <div class="form-group">
+                    <label for="subjectsInput">Subjects <span class="hint">(comma-separated)</span></label>
+                    <input type="text" id="subjectsInput" placeholder="e.g. Maths, Physics, English" required />
+                    <span class="error-msg" id="subjectsErr"></span>
+                </div>
+
+                <!-- Exam Date & Hours -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="examDateInput">Date</label>
+                        <input type="date" id="examDateInput" required />
+                        <span class="error-msg" id="dateErr"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="hoursInput">Study Hours / Day</label>
+                        <input type="number" id="hoursInput" min="1" max="14" value="4" required />
+                        <span class="error-msg" id="hoursErr"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary full-w" id="generateBtn">
+                    Generate My Plan
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!--DASHBOARD-->
+    <section class="section hidden" id="dashboard">
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <span class="stat-icon">📅</span>
+                <div>
+                    <p class="stat-label">Days Left</p>
+                    <p class="stat-value" id="statDays">–</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📖</span>
+                <div>
+                    <p class="stat-label">Subjects</p>
+
+                    <p class="stat-value" id="statSubjects">–</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">⏰</span>
+                <div>
+                    <p class="stat-label">Hours / Day</p>
+                    <p class="stat-value" id="statHours">–</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="card progress-card">
+            <div class="progress-header">
+                <h3>✅ Overall Progress</h3>
+                <span class="progress-pct" id="progressPct">0%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- Mood Tracker -->
+        <div class="card mood-card">
+            <h3> How are you feeling today?</h3>
+            <p class="mood-sub">Your mood will adjust today's schedule.</p>
+            <div class="mood-row">
+                <button class="mood-btn" id="moodHappy" onclick="setMood('happy')">
+                    <span class="mood-emoji">😄</span> Happy
+                </button>
+                <button class="mood-btn" id="moodNormal" onclick="setMood('normal')">
+                    <span class="mood-emoji">😐</span> Normal
+                </button>
+                <button class="mood-btn" id="moodStressed" onclick="setMood('stressed')">
+                    <span class="mood-emoji">😰</span> Stressed
+                </button>
+            </div>
+            <!-- Mood message box -->
+            <div class="mood-message hidden" id="moodMessage">
+                <span class="mood-msg-icon" id="moodMsgIcon"></span>
+                <p id="moodMsgText"></p>
+            </div>
+        </div>
+
+        <!-- Timetable -->
+        <div class="timetable-section">
+            <h3 class="timetable-title">📅 Your Daily Timetable</h3>
+            <div class="timetable-grid" id="timetableGrid">
+                <!-- Cards injected by JS -->
+            </div>
+        </div>
+
+    </section>
+
+    <!-- FOCUS TIMER -->
+    <section class="section hidden" id="timer">
+        <div class="card timer-card">
+            <div class="card-header" style="border-bottom: none; padding-bottom: 0.5rem; margin-bottom: 0;">
+                <h2 id="timerTitle">⏱️ Focus Timer</h2>
+                <p id="timerDesc">Lock in for 25 minutes of deep focus. No distractions.</p>
+            </div>
+
+            <div class="timer-modes">
+                <button class="btn btn-primary" id="modeFocusBtn" onclick="setTimerMode('focus')">Focus (25m)</button>
+                <button class="btn btn-outline" id="modeBreakBtn" onclick="setTimerMode('break')">Break (5m)</button>
+            </div>
+
+            <div class="timer-face">
+                <svg class="timer-ring-svg" viewBox="0 0 140 140">
+                    <defs>
+                        <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#a78bfa" />
+                            <stop offset="60%" stop-color="#8b5cf6" />
+                            <stop offset="100%" stop-color="#6366f1" />
+                        </linearGradient>
+                    </defs>
+                    <circle class="ring-bg" cx="70" cy="70" r="60" />
+                    <circle class="ring-progress" id="timerRingProgress" cx="70" cy="70" r="60"
+                        stroke-dasharray="376.99" stroke-dashoffset="0" />
+                </svg>
+                <div class="timer-time" id="timerTime">25:00</div>
+            </div>
+
+            <div class="timer-controls">
+                <button class="btn btn-primary" id="timerStartBtn" onclick="timerToggle()">▶ Start</button>
+                <button class="btn btn-outline" onclick="timerReset()">↺ Reset</button>
+            </div>
+
+            <div class="timer-done hidden" id="timerDone">
+                🎉 Focus session complete! Take a short break.
+            </div>
+
+            <div class="timer-tips">
+                <p>💡 <strong>Tip:</strong> After each session, reward yourself with a 5 minute break.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p> MindMate · Your data is private and stored only on your device.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
