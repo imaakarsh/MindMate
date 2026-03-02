@@ -11,7 +11,7 @@
     --warning: #cccccc;
     --danger: #999999;
 
-    
+
 
     --bg: #000000;
     --bg2: #050505;
@@ -749,10 +749,28 @@ input:focus {
 
 .ring-progress {
     fill: none;
-    stroke: url(#timerGrad);
+    stroke: #4ade80;
     stroke-width: 10;
     stroke-linecap: round;
-    transition: stroke-dashoffset 0.5s linear;
+    transition: stroke-dashoffset 0.5s linear, stroke 0.4s ease;
+}
+
+/* Ring colour per mode */
+.ring-focus .ring-progress {
+    stroke: #4ade80;
+}
+
+.ring-break .ring-progress {
+    stroke: #f87171;
+}
+
+/* Drop-shadow colour per mode */
+.ring-focus {
+    filter: drop-shadow(0 0 16px rgba(74, 222, 128, 0.5));
+}
+
+.ring-break {
+    filter: drop-shadow(0 0 16px rgba(248, 113, 113, 0.5));
 }
 
 .timer-time {
@@ -811,6 +829,19 @@ input:focus {
     margin-bottom: 2.5rem;
 }
 
+.team-eyebrow {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.28rem 0.9rem;
+    margin-bottom: 0.85rem;
+}
+
 .team-title {
     font-size: clamp(1.6rem, 4vw, 2.2rem);
     font-weight: 800;
@@ -827,154 +858,442 @@ input:focus {
     line-height: 1.7;
 }
 
-.team-sub span {
-    color: var(--primary);
-    font-weight: 600;
-}
-
 .team-grid {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    flex-wrap: nowrap;
     gap: 1.5rem;
-    flex-direction: row;
-    justify-items: center;
-
 }
 
+/* Portrait card */
 .team-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 2rem;
-    text-align: left;
-    transition: border-color var(--trans);
+    padding: 2rem 1.75rem 1.5rem;
+    text-align: center;
+    transition: border-color var(--trans), box-shadow var(--trans), transform var(--trans);
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    gap: 2rem;
-    max-width: 600px;
-    width: 100%;
+    gap: 0;
+    width: 260px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.team-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    opacity: 0;
+    transition: opacity var(--trans);
 }
 
 .team-card:hover {
     border-color: var(--border-bright);
+    box-shadow: 0 0 32px rgba(255, 255, 255, 0.06);
+    transform: translateY(-4px);
+}
+
+.team-card:hover::before {
+    opacity: 1;
+}
+
+/* Top block: avatar + online dot */
+.team-card-top {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.15rem;
 }
 
 /* Avatar */
 .team-avatar-wrap {
     position: relative;
-    margin-bottom: 0;
     flex-shrink: 0;
 }
 
 .team-avatar {
-    width: 80px;
-    height: 80px;
+    width: 96px;
+    height: 96px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--border-bright);
-    transition: border-color var(--trans);
+    transition: border-color var(--trans), box-shadow var(--trans);
 }
 
 .team-card:hover .team-avatar {
-    box-shadow:
-        0 0 0 2.5px var(--accent),
-        0 0 28px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15), 0 0 28px rgba(255, 255, 255, 0.4);
 }
 
 .team-avatar-badge {
     position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 24px;
-    height: 24px;
+    bottom: 3px;
+    right: 3px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: linear-gradient(135deg, #ffffff, #cccccc);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.6rem;
-    color: #000;
     border: 2px solid var(--bg);
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
-}
-
-/* Info section */
-.team-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    flex: 1;
-}
-
-/* Name / Role / Bio */
-.team-name {
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 0.35rem;
-}
-
-.team-role {
-    display: inline-block;
-    color: var(--success);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    margin-bottom: 0.9rem;
-}
-
-.team-bio {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    line-height: 1.65;
-    margin-bottom: 1.4rem;
-}
-
-/* View Profile Button */
-.team-profile-btn {
-    margin-top: auto;
-    padding: 0.55rem 1.3rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.07);
-    border: 1.5px solid var(--border-bright);
-    color: var(--text);
-    font-size: 0.82rem;
-    font-weight: 700;
-    gap: 0.45rem;
-    transition: all var(--trans);
-    backdrop-filter: blur(8px);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
 .team-avatar-badge img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Green online dot */
+.team-online-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.7);
+    margin-top: 0.6rem;
+}
+
+/* Info block */
+.team-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    width: 100%;
+}
+
+.team-name {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+}
+
+.team-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    margin-bottom: 0.85rem;
+}
+
+.role-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 6px rgba(74, 222, 128, 0.7);
+    flex-shrink: 0;
+}
+
+.team-bio {
+    font-size: 0.83rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 1rem;
+}
+
+/* Skill tags */
+.team-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.team-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    padding: 0.2rem 0.6rem;
+}
+
+/* Footer CTA */
+.team-card-footer {
+    width: 100%;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+}
+
+.team-profile-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid var(--border-bright);
+    color: var(--text);
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition: all var(--trans);
+    backdrop-filter: blur(8px);
+    text-decoration: none;
 }
 
 .team-profile-btn:hover {
     background: linear-gradient(135deg, #ffffff, #e0e0e0);
     border-color: transparent;
     color: #000;
-    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.5);
-    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
 }
 
 @media (max-width: 600px) {
-    .team-card {
+    .team-grid {
         flex-direction: column;
-        text-align: center;
-        gap: 1.25rem;
-        padding: 1.5rem;
-    }
-
-    .team-info {
         align-items: center;
     }
 
-    .team-avatar-wrap {
-        margin-bottom: 0;
+    .team-card {
+        width: 100%;
+        max-width: 320px;
+    }
+}
+
+/* 
+   PROBLEM → SOLUTION
+    */
+.ps-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2.5rem 0 2rem;
+    flex-wrap: wrap;
+}
+
+.ps-card {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 1.25rem 1.4rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: border-color var(--trans);
+}
+
+.ps-card:hover {
+    border-color: var(--border-bright);
+}
+
+.ps-problem {
+    border-left: 3px solid rgba(248, 113, 113, 0.6);
+}
+
+.ps-solution {
+    border-left: 3px solid rgba(74, 222, 128, 0.6);
+}
+
+.ps-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.ps-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.35rem;
+}
+
+.ps-problem .ps-label {
+    color: rgba(248, 113, 113, 0.9);
+}
+
+.ps-solution .ps-label {
+    color: rgba(74, 222, 128, 0.9);
+}
+
+.ps-text {
+    font-size: 0.87rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+}
+
+.ps-arrow {
+    font-size: 1.4rem;
+    color: var(--text-light);
+    flex-shrink: 0;
+    padding: 0 0.25rem;
+}
+
+/* 
+   SDG BADGES
+    */
+.sdg-strip {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.sdg-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+}
+
+.sdg-badges {
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.sdg-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: border-color var(--trans);
+}
+
+.sdg-badge:hover {
+    border-color: var(--border-bright);
+}
+
+.sdg-num {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.15rem;
+}
+
+.sdg-3 .sdg-num {
+    color: #4ade80;
+}
+
+.sdg-4 .sdg-num {
+    color: #60a5fa;
+}
+
+.sdg-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* 
+   TECH STACK
+    */
+.tech-stack-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.tech-stack-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+}
+
+.tech-chips {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.tech-chip {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-bright);
+    border-radius: var(--radius-xs);
+    padding: 0.3rem 0.75rem;
+    letter-spacing: 0.2px;
+    transition: background var(--trans);
+}
+
+.tech-chip:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* 
+   FUTURE SCOPE
+    */
+.future-scope {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    border-left: 3px solid rgba(167, 139, 250, 0.5);
+}
+
+.future-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+}
+
+.future-items {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.future-item {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+@media (max-width: 640px) {
+    .ps-arrow {
+        transform: rotate(90deg);
+    }
+
+    .ps-section {
+        flex-direction: column;
     }
 }
 
@@ -1019,9 +1338,7 @@ input:focus {
     transform: translateX(-50%) translateY(0);
 }
 
-/* 
-   ANIMATIONS
-    */
+
 @keyframes fadeUp {
     from {
         opacity: 0;

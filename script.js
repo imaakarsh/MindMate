@@ -1,7 +1,7 @@
 
 'use strict';
 
-// ── 1. QUOTES OF THE DAY 
+// QUOTES OF THE DAY 
 const QUOTES = [
     '"The secret of getting ahead is getting started." – Mark Twain',
     '"Push yourself, because no one else is going to do it for you."',
@@ -19,7 +19,7 @@ const QUOTES = [
     '"Don\'t wish for it; work for it."',
 ];
 
-// ── 2. MOOD MESSAGES ─────
+//  MOOD MESSAGES
 const MOOD_CONFIG = {
     happy: {
         icon: '🌟',
@@ -38,7 +38,7 @@ const MOOD_CONFIG = {
     },
 };
 
-// ── 3. STATE ─────────────
+//  STATE
 let studyPlan = [];
 let currentMood = 'normal';
 let progress = {};
@@ -60,7 +60,7 @@ let sessionsToday = 0;
 const MILESTONES = [25, 50, 75, 100];
 let triggeredMilestones = new Set();
 
-// ── 4. DOM REFERENCES ────
+//  DOM REFERENCES
 const sections = {
     landing: document.getElementById('landing'),
     planner: document.getElementById('planner'),
@@ -74,7 +74,7 @@ const navLinks = {
     timer: document.getElementById('navTimer'),
 };
 
-// ── 5. NAVIGATION ─────────
+//  NAVIGATION
 function showSection(name) {
     Object.values(sections).forEach(s => s.classList.add('hidden'));
     Object.values(navLinks).forEach(l => l.classList.remove('active'));
@@ -88,7 +88,7 @@ function toggleNav() {
     document.getElementById('navLinks').classList.toggle('open');
 }
 
-// ── 6. INIT ──────────────
+//  INIT
 function init() {
     showSection('landing');
     showDailyQuote();
@@ -96,16 +96,19 @@ function init() {
     updateTimerDisplay();
     initParticles();
     updateSessionDisplay();
+    // Set initial ring colour
+    const svg = document.querySelector('.timer-ring-svg');
+    if (svg) svg.classList.add('ring-focus');
 }
 
-// ── 7. DAILY QUOTE ───────
+//  DAILY QUOTE
 function showDailyQuote() {
     const day = new Date().getDate();
     const quote = QUOTES[day % QUOTES.length];
     document.getElementById('dailyQuote').textContent = quote;
 }
 
-// ── 8. FORM / PLAN GENERATION ────────────────────────────────────────────────
+//   FORM / PLAN GENERATION
 document.getElementById('plannerForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -178,7 +181,7 @@ function generatePlan(subjects, daysLeft, hoursPerDay, startDate) {
     return plan;
 }
 
-// ── 9. TIMETABLE RENDERING ───────────────────────────────────────────────────
+//  TIMETABLE RENDERING
 function renderTimetable() {
     const grid = document.getElementById('timetableGrid');
     grid.innerHTML = '';
@@ -243,7 +246,7 @@ function renderTimetable() {
     });
 }
 
-// ── 10. PROGRESS BAR ─────
+//  PROGRESS BAR
 function countTotalTasks() {
     let total = 0;
     studyPlan.forEach(d => {
@@ -286,7 +289,7 @@ function checkMilestone(pct) {
     }
 }
 
-// ── 11. MOOD TRACKER ─────
+//  MOOD TRACKER
 function setMood(mood) {
     currentMood = mood;
     saveToStorage();
@@ -315,7 +318,7 @@ function clearMoodState() {
     document.getElementById('moodMessage').classList.add('hidden');
 }
 
-// ── 12. FOCUS TIMER ──────
+//  FOCUS TIMER
 function setTimerMode(mode) {
     if (timerRunning) {
         clearInterval(timerInterval);
@@ -330,6 +333,7 @@ function setTimerMode(mode) {
     const breakBtn = document.getElementById('modeBreakBtn');
     const title = document.getElementById('timerTitle');
     const desc = document.getElementById('timerDesc');
+    const svg = document.querySelector('.timer-ring-svg');
 
     if (mode === 'focus') {
         focusBtn.className = 'btn btn-primary';
@@ -337,12 +341,16 @@ function setTimerMode(mode) {
         timerSeconds = FOCUS_DURATION;
         title.textContent = '⏱️ Focus Timer';
         desc.textContent = 'Lock in for 25 minutes of deep focus. No distractions.';
+        svg.classList.remove('ring-break');
+        svg.classList.add('ring-focus');
     } else {
         breakBtn.className = 'btn btn-primary';
         focusBtn.className = 'btn btn-outline';
         timerSeconds = BREAK_DURATION;
         title.textContent = '☕ Break Timer';
         desc.textContent = 'Take a 5-minute break to recharge.';
+        svg.classList.remove('ring-focus');
+        svg.classList.add('ring-break');
     }
 
     document.getElementById('timerDone').classList.add('hidden');
@@ -446,7 +454,7 @@ function playBeep() {
     } catch (_) { /* silent fallback */ }
 }
 
-// ── 13. CONFETTI ─────────
+//  CONFETTI
 const CONFETTI_COLORS = [
     '#a78bfa', '#7c3aed', '#818cf8', '#34d399',
     '#fbbf24', '#f472b6', '#60a5fa', '#c4b5fd',
@@ -481,7 +489,7 @@ function triggerConfetti() {
     }
 }
 
-// ── 14. PARTICLE CANVAS ──
+//  PARTICLE CANVAS
 function initParticles() {
     const canvas = document.getElementById('particleCanvas');
     if (!canvas) return;
@@ -531,7 +539,7 @@ function initParticles() {
     });
 }
 
-// ── 15. LOCAL STORAGE ────
+//  LOCAL STORAGE
 function saveToStorage() {
     localStorage.setItem('mm_plan', JSON.stringify(studyPlan));
     localStorage.setItem('mm_mood', currentMood);
@@ -579,7 +587,7 @@ function loadFromStorage() {
     }
 }
 
-// ── 16. UTILITIES ────────
+//  UTILITIES
 function showError(id, msg) {
     document.getElementById(id).textContent = msg;
 }
@@ -607,5 +615,5 @@ function showToast(msg) {
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// ── INIT ─────────────────
+//  INIT
 init();
