@@ -14,7 +14,7 @@
         href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
 
-    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="icon" href="Assets/favicon.png" type="image/png">
     <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -24,21 +24,40 @@
     <nav class="navbar">
         <div class="nav-brand" style="cursor: pointer;"
             onclick="showSection('landing'); window.location.href='#landing';">
-            <img src="favicon.png" alt="MindMate Logo" class="nav-logo-img">
+            <img src="Assets/favicon.png" alt="MindMate Logo" class="nav-logo-img">
             <div class="nav-logo">MindMate</div>
         </div>
         <div class="nav-links" id="navLinks">
             <a href="#landing" class="nav-link active" id="navHome" onclick="showSection('landing')">Home</a>
             <a href="#dashboard" class="nav-link" id="navDashboard" onclick="showSection('dashboard')">Dashboard</a>
             <a href="#planner" class="nav-link" id="navPlanner" onclick="showSection('planner')">Planner</a>
-
             <a href="#timer" class="nav-link" id="navTimer" onclick="showSection('timer')">Timer</a>
+            <a href="#chat" class="nav-link" id="navChat" onclick="showSection('chat')">AI Chat</a>
         </div>
         <button class="hamburger" id="hamburger" onclick="toggleNav()">☰</button>
     </nav>
 
     <!-- LANDING -->
     <section class="section" id="landing">
+        <div class="floating-icons">
+            <span class="float-icon" style="top: 10%; left: 2%; animation-duration: 8s; animation-delay: 0s;">
+                <img src="Assets/icon1.png" alt="icon1">   
+            </span>
+            <span class="float-icon"
+                style="top: 25%; right: 5%; animation-duration: 12s; animation-delay: 1s;">
+                <img src="Assets/icon2.png" style="width: 50px; height: 50px;" alt="icon2">
+            </span>
+            <span class="float-icon"
+                style="top: 10%; right: 10%; animation-duration: 7s; animation-delay: 2.5s;">
+                <img src="Assets/icon3.png"  style="width: 70px; height: 70px;" alt="icon3">
+            </span>
+            <span class="float-icon" style="top: 25%; left: 5%; animation-duration: 14s; animation-delay: 3s;">
+                <img src="Assets/icon4.png" style="width: 70px; height: 70px;" alt="icon4">
+            </span>
+            <!-- <span class="float-icon" style="top: 5%; right: 2%; animation-duration: 14s; animation-delay: 3s;">
+                <img src="icon5.png" style="width: 70px; height: 70px;" alt="icon5">
+            </span> -->
+        </div>
         <div class="hero-container">
             <div class="hero-badge"> For Students, By Students</div>
             <h1 class="hero-title">Study <span>Smarter</span>,<br />Stay Stress-Free.</h1>
@@ -75,7 +94,7 @@
                             <img src="https://github.com/imaakarsh.png" alt="imaakarsh" class="team-avatar"
                                 onerror="this.src='https://ui-avatars.com/api/?name=imaakarsh&background=333&color=fff&size=120'" />
                             <span class="team-avatar-badge">
-                                <img src="git.png" alt="github">
+                                <img src="Assets/git.png" alt="github">
                             </span>
                         </div>
                         <!-- <div class="team-online-dot"></div> -->
@@ -110,7 +129,7 @@
                             <img src="https://github.com/iamsiddharthhh.png" alt="iamsiddharthhh" class="team-avatar"
                                 onerror="this.src='https://ui-avatars.com/api/?name=iamsiddharthhh&background=333&color=fff&size=120'" />
                             <span class="team-avatar-badge">
-                                <img src="git.png" alt="github">
+                                <img src="Assets/git.png" alt="github">
                             </span>
                         </div>
                         <!-- <div class="team-online-dot"></div> -->
@@ -288,6 +307,30 @@
 
             <div class="timer-tips">
                 <p>💡 <strong>Tip:</strong> After each session, reward yourself with a 5 minute break.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI CHAT ASSISTANT -->
+    <section class="section hidden" id="chat">
+        <div class="card chat-card">
+            <div class="card-header chat-header">
+                <h2>🤖 MindMate AI Assistant</h2>
+                <p>Talk to your AI study companion anytime.</p>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <!-- Initial greeting -->
+                <div class="message-bubble bubble-ai">
+                    <span class="bubble-text">Hi there! I'm MindMate. How are you feeling about your studies today? Let
+                        me know if you're feeling stressed, unmotivated, or just need some study tips!</span>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Type your message here..."
+                    onkeypress="handleChatKeyPress(event)" />
+                <button class="btn btn-primary" id="chatSendBtn" onclick="sendChatMessage()">Send</button>
             </div>
         </div>
     </section>

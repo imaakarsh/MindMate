@@ -66,12 +66,14 @@ const sections = {
     planner: document.getElementById('planner'),
     dashboard: document.getElementById('dashboard'),
     timer: document.getElementById('timer'),
+    chat: document.getElementById('chat'),
 };
 const navLinks = {
     landing: document.getElementById('navHome'),
     planner: document.getElementById('navPlanner'),
     dashboard: document.getElementById('navDashboard'),
     timer: document.getElementById('navTimer'),
+    chat: document.getElementById('navChat'),
 };
 
 //  NAVIGATION
@@ -617,3 +619,125 @@ function showToast(msg) {
 
 //  INIT
 init();
+
+// AI CHAT LOGIC
+let chatHistory = [];
+
+function handleChatKeyPress(e) {
+    if (e.key === 'Enter') {
+        sendChatMessage();
+    }
+}
+
+async function sendChatMessage() {
+    const inputEl = document.getElementById('chatInput');
+    const msgText = inputEl.value.trim();
+    if (!msgText) return;
+
+    // Reset input
+    inputEl.value = '';
+
+    // Add user message to UI
+    appendMessage('user', msgText);
+
+    // Add to history
+    chatHistory.push({ role: 'user', content: msgText });
+
+    // Show loading
+    const loadingId = appendLoading();
+
+    // Scroll to bottom
+    scrollToChatBottom();
+
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: chatHistory })
+        });
+
+        const data = await response.json();
+
+        // Remove loading
+        const loadingEl = document.getElementById(loadingId);
+        if (loadingEl) loadingEl.remove();
+
+        if (response.ok) {
+            // Append AI response
+            appendMessage('ai', data.reply, data.mood, data.action);
+
+            // Add to history
+            chatHistory.push({ role: 'assistant', content: data.reply });
+        } else {
+            appendMessage('ai', 'Oops! Something went wrong. Make sure the server is running and API key is set.');
+            // Remove the user's message from history so they can try again if wanted
+            chatHistory.pop();
+        }
+    } catch (err) {
+        console.error("Chat error:", err);
+        const loadingEl = document.getElementById(loadingId);
+        if (loadingEl) loadingEl.remove();
+        appendMessage('ai', 'Network error. Please try again later.');
+        chatHistory.pop();
+    }
+
+    scrollToChatBottom();
+}
+
+function appendMessage(sender, text, mood, action) {
+    const container = document.getElementById('chatMessages');
+    const bubbleWrapper = document.createElement('div');
+    bubbleWrapper.className = `message-bubble bubble-${sender}`;
+
+    let html = `<span class="bubble-text">${escapeHTML(text)}</span>`;
+
+    if (mood || action) {
+        html += `<div class="chat-tags">`;
+        if (mood && mood.toLowerCase() !== 'normal') {
+            html += `<span class="chat-tag mood">Mood: ${escapeHTML(mood)}</span>`;
+        }
+        if (action && action.toLowerCase() !== 'null') {
+            html += `<span class="chat-tag action">Tip: ${escapeHTML(action)}</span>`;
+        }
+        html += `</div>`;
+    }
+
+    bubbleWrapper.innerHTML = html;
+    container.appendChild(bubbleWrapper);
+}
+
+function appendLoading() {
+    const container = document.getElementById('chatMessages');
+    const id = 'loading-' + Date.now();
+    const bubbleWrapper = document.createElement('div');
+    bubbleWrapper.id = id;
+    bubbleWrapper.className = `message-bubble bubble-ai`;
+    bubbleWrapper.innerHTML = `
+        <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    `;
+    container.appendChild(bubbleWrapper);
+    return id;
+}
+
+function scrollToChatBottom() {
+    const container = document.getElementById('chatMessages');
+    container.scrollTop = container.scrollHeight;
+}
+
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g,
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
+
