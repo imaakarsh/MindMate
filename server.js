@@ -10,12 +10,12 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the root directory
-app.use(express.static(__dirname));
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Default to catching all other GET requests to serve index.html (useful if we have other paths)
+// Default to catching all other GET requests to serve index.html
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Setup Gemini
